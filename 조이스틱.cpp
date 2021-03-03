@@ -1,65 +1,75 @@
-#include <string>
 #include <vector>
-#include <stack>
+#include <string>
 #include <numeric>
+#include <iostream>
 #include <algorithm>
-
 
 using namespace std;
 
-int solution(string name) {
-    int answer = 0;
-    int len = name.size();
-    vector<int> res(len);
-    auto trans = [](char ch){return 65 + (ch - 'A' + 25) % 26; };
-    for(int i=0;i<len;i++)
+int main()
+{
+    
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
+    
+    int n;
+    cin>>n;
+    string str;
+    auto trans = [](char ch){return 65+(ch-'A'+25)%26;}; // 아래로 내리는 경우
+    for(int i=0;i<n;i++)
     {
-        if(name[i]>='A' && name[i]<='N')
-            res[i]=name[i]-'A';
-        else if(name[i]>='O' && name[i]<='Z')
+        cin>>str;
+        int len = str.size();
+        int sum=0;
+        
+        if(count(str.begin(), str.end(), 'A')==len)
         {
-
-            int count=0;
-            char ch = 'A';
-            while(ch!=name[i])
-            {
-                ch = trans(ch);
-                count++;
-            }
-            res[i] = count;
-        }   
-    }
-
-
-    int idx=0;
-
-    while(true)
-    {
-        answer+=res[idx];
-        res[idx]=0;
-        if(accumulate(res.begin(), res.end(), 0)==0) // 모두 돌았다면 
-            break;
-        int left=1, right=1;
-
-        while(res[idx-left<=0?idx-left+len:idx-left]==0)
-            left++; // A가 왼쪽에 있는만큼 ++
-        while(res[idx+right>=len?idx+right-len:idx+right]==0)
-            right++;
-        if(right>left)
-        {
-            answer+=left; // left만큼 더해주고
-            idx-=left;
-            if(idx<0)
-                idx+=len;
-        }else
-        {
-            answer+=right;
-            idx+=right;
+            cout<<0<<'\n';
+            continue;
         }
+        
+        
+        // 우선 각 문자에 대해 얼마나 이동해야 하는지 탐색
+        for(auto i : str)
+        {
+            if(i>='A' && i<='N')
+            {
+                sum+=(i-'A');
+            }else if(i>='O' && i<='Z')
+            {
+                char ch = 'A';
+                int count=0;
+                while(ch!=i)
+                {
+                    ch = trans(ch);
+                    count++;
+                }
+                sum+=count;
+            }
+        }
+        
+        // 탐색후 좌우로 얼마만큼 최소로 움직여야 하는지 탐색
+        int move = len-1;
+        for(int i=0;i<len;i++)
+        {
+           int next = i+1;
+            while(next<len && str[next]=='A')
+                next++;
+            if(str[i]=='A' && next==len+1) break;
+            int left = i*2+len-next;
+            int right = i+(len-next)*2;
+            int val = min(left, right);
+            move = min(move, val);
+        }
+        sum+=move;
+        
+        cout<<sum<<'\n';
+        
+        
     }
-
-
-
-
-    return answer;
+    
+    
+    
 }
